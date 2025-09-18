@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stranger Quiz para Celeste</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Creepster&display=swap');
+
+  body {
+    margin: 0;
+    background-color: #51d1f6;
+    font-family: 'Courier New', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+    padding: 10px;
+    color: #fff;
+  }
+
+  #quiz-container {
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+    border: 2px solid #ff8b91;
+    border-radius: 12px;
+    background: #51d1f6;
+    box-shadow: 0 0 30px #ff8b91;
+    box-sizing: border-box;
+    display: none; 
+  }
+
+  #title {
+    font-family: 'Creepster', cursive;
+    font-size: 36px;
+    color: #000;
+    text-shadow: 0 0 15px #ff0000, 0 0 30px #990000;
+    margin-bottom: 20px;
+  }
+
+  .question {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+  }
+
+  button {
+    padding: 14px 25px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #e273cc, #ff8b91);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 300px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(255,0,0,0.5);
+  }
+
+  button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(255,0,0,0.7);
+    background: linear-gradient(145deg, #ff1a1a, #b20710);
+  }
+
+  /* Modal inicio */
+  #startModal {
+    position: fixed;
+    top:0; left:0;
+    width: 100%; height: 100%;
+    background:#51d1f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 100;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  #startModal h2 { font-size: 28px; margin-bottom: 20px; }
+
+  #startModal .modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+  }
+
+  #startModal .modal-buttons button { width: 150px; }
+
+  /* Sobre animado */
+  .envelope-container {
+    display: none;
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto;
+    perspective: 1000px;
+  }
+
+  .envelope {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    transform-style: preserve-3d;
+    transition: transform 1s ease;
+  }
+
+  .envelope.open {
+    transform: rotateX(180deg);
+  }
+
+  .envelope .front, .envelope .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 12px;
+  }
+
+  .envelope .front {
+    background: #ff8b91;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  .envelope .back {
+    background: #fff;
+    color: #000;
+    padding: 20px;
+    box-sizing: border-box;
+    transform: rotateX(180deg);
+    overflow-y: auto;
+    text-align: left;
+  }
+
+  audio {
+    margin-top: 15px;
+    width: 100%;
+  }
+
+  @media (max-width: 400px) {
+    #title { font-size: 28px; }
+    .question { font-size: 18px; }
+    button { font-size: 14px; padding: 12px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Modal de inicio -->
+<div id="startModal">
+  <h2>Hola Celeste! 🌟</h2>
+  <p>Bienvenida a una mini aventura de Stranger Things. ¿Quieres jugar?</p>
+  <div class="modal-buttons">
+    <button onclick="startGame()">Jugar</button>
+    <button onclick="noPlay()">No jugar</button>
+  </div>
+</div>
+
+<div id="quiz-container">
+  <div id="title">Stranger Quiz</div>
+  <div id="quiz"></div>
+
+  <!-- Sobre animado -->
+  <div class="envelope-container" id="envelope-container">
+    <div class="envelope" id="envelope">
+      <div class="front">📩 Haz clic aquí para abrir tu carta</div>
+      <div class="back" id="letter">
+        <p>✨ Hola mi bonita, sabía que lo ibas a lograr. ✨</p>
+        <p>Traté de hacer este juego con una de tus series favoritas, pero sobre todo quiero decirte que te has vuelto alguien muy importante para mí. Gracias por darme la oportunidad de estar en tu vida.</p>
+        <p>Usted es lo más hermoso que he conocido y créame que quiero todo lo bonito contigo. Mi niña, eres espectacular y nunca olvides lo que vales como persona y como mujer.</p>
+        <p>Ya quiero que sea mañana para verte y darte un abrazote. Eres todo lo que siempre le pedí a Dios, y ahora que tengo la suerte de conocerte haré todo lo posible para que nunca te arrepientas de estar conmigo. ❤️</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Música personalizada -->
+  <audio id="music" controls style="display:none;">
+    <source src="Los Gemelos De Sinaloa - AMOR (Official Video).mp3" type="audio/mpeg">
+    Tu navegador no soporta audio.
+  </audio>
+</div>
+
+<script>
+const questions = [
+  { q: "¿Cómo se llama la niña con poderes telequinéticos?", options: ["Once (Eleven)", "Doce (Twelve)", "Trece (Thirteen)"], answer: 0 },
+  { q: "¿Qué juego jugaban los chicos en el sótano cuando desapareció Will?", options: ["Monopoly", "Dungeons & Dragons", "Clue"], answer: 1 },
+  { q: "¿Cómo se llama la ciudad donde ocurre la historia?", options: ["Hawkins", "Springfield", "Hill Valley"], answer: 0 },
+  { q: "¿Quién es la hermana de Mike?", options: ["Nancy", "Karen", "Robin"], answer: 0 },
+  { q: "¿Qué criatura aterradora viene del Mundo del Revés?", options: ["Demogorgon", "Mind Flayer", "Vecna"], answer: 0 },
+  { q: "¿Cuál es la comida favorita de Eleven?", options: ["Hamburguesas", "Waffles Eggo", "Pizza"], answer: 1 },
+  { q: "¿Cómo se llama el sheriff de Hawkins?", options: ["Jim Hopper", "Sam Owens", "Murray Bauman"], answer: 0 }
+];
+
+let currentQuestion = 0;
+let correctAnswers = 0;
+const quizDiv = document.getElementById("quiz");
+const music = document.getElementById("music");
+const envelopeContainer = document.getElementById("envelope-container");
+const envelope = document.getElementById("envelope");
+
+function startGame() {
+  document.getElementById('startModal').style.display = 'none';
+  document.getElementById('quiz-container').style.display = 'block';
+  showQuestion();
+}
+
+function noPlay() { alert('Tal vez en otro momento, Celeste 💔'); }
+
+function showQuestion() {
+  if (currentQuestion < questions.length) {
+    let q = questions[currentQuestion];
+    quizDiv.style.display = "block";
+    quizDiv.innerHTML = `
+      <div class="question">${q.q}</div>
+      <div class="options">
+        ${q.options.map((opt,i)=>`<button onclick="checkAnswer(${i})">${opt}</button>`).join('')}
+      </div>
+    `;
+  } else {
+    endQuiz();
+  }
+}
+
+function checkAnswer(selected) {
+  if (selected === questions[currentQuestion].answer) correctAnswers++;
+  currentQuestion++;
+  showQuestion();
+}
+
+function endQuiz() {
+  quizDiv.style.display = "none";
+  envelopeContainer.style.display = "none";
+
+  if(correctAnswers === questions.length) {
+    // Mostrar sobre con carta
+    envelopeContainer.style.display = "block"; 
+    setTimeout(()=> { envelope.classList.add('open'); }, 500);
+    music.style.display = "block";
+    music.play();
+  } else {
+    // Mostrar mensaje de reintento
+    quizDiv.style.display = "block";
+    quizDiv.innerHTML = `
+      <p>No respondiste todas correctas 😔</p>
+      <button onclick="restartQuiz()">Volver a intentar</button>
+    `;
+  }
+}
+
+function restartQuiz() {
+  currentQuestion = 0;
+  correctAnswers = 0;
+  envelope.classList.remove('open');
+  envelopeContainer.style.display = "none";
+  showQuestion();
+}
+</script>
+</body>
+</html>
